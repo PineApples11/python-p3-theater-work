@@ -1,6 +1,5 @@
-from sqlalchemy import ForeignKey, Column, Integer, String, MetaData
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, MetaData, create_engine
+from sqlalchemy.orm import relationship, declarative_base
 
 convention = {
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
@@ -8,10 +7,13 @@ convention = {
 metadata = MetaData(naming_convention=convention)
 
 Base = declarative_base(metadata=metadata)
+engine = create_engine('sqlite:///theater.db')
+Base.metadata.create_all(engine)
 
 class Audition(Base):
   __tablename__ = "auditions"
-
+  
+  id = Column(Integer, primary_key = True, autoincrement = True)
   actor = Column(String(),primary_key=True)
   location = Column(String())
   phone = Column(Integer())
@@ -33,7 +35,7 @@ class Role(Base):
 
   character_name = Column(String())
 
-  auditions = relationship("Audition",backref="role")
+  auditions = relationship("Audition",back_populates="role")
 
   def auditions(self):
     return [audition for audition in self.auditions]
